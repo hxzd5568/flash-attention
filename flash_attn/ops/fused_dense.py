@@ -10,11 +10,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
 from torch.distributed import ProcessGroup
-from torch.cuda.amp import custom_bwd, custom_fwd
 
 # import fused_dense_cuda  # from apex
 import fused_dense_lib as fused_dense_cuda
 
+from flash_attn.utils.torch import custom_fwd, custom_bwd
 from flash_attn.ops.activations import gelu_bwd, relu_bwd, sqrelu_fwd, sqrelu_bwd
 from flash_attn.utils.distributed import all_gather_raw, reduce_scatter_raw, all_reduce_raw
 from flash_attn.utils.distributed import reduce_scatter, all_reduce
