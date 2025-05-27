@@ -364,6 +364,7 @@ struct CollectiveMainloopFwdSm90 {
         ShapeQKV const shape_K;
         StrideQK const stride_K;
         Element* const ptr_V;
+        ShapeQKV const shape_V;
         int32_t const headdim_v;
         StrideV const stride_V;
         Element const* const ptr_K_new;
@@ -408,6 +409,7 @@ struct CollectiveMainloopFwdSm90 {
         ShapeQKV const shape_K;
         StrideQK const stride_K;
         Element* const ptr_V;
+        ShapeQKV const shape_V;
         int32_t const headdim_v;
         StrideV const stride_V;
         Element const* const ptr_K_new;
@@ -469,7 +471,7 @@ struct CollectiveMainloopFwdSm90 {
             TileShape_MNK{},
             ClusterShape{}); // mcast along M mode for this N load, if any
         Tensor mV = make_tensor(make_gmem_ptr(args.ptr_V),
-                                make_shape(args.headdim_v, get<0>(args.shape_K), get<2>(args.shape_K), get<3>(args.shape_K)),
+                                make_shape(args.headdim_v, get<0>(args.shape_V), get<2>(args.shape_V), get<3>(args.shape_V)),
                                 select<1, 0, 2, 3>(args.stride_V));
         TMA_V tma_load_V = make_tma_copy(
             GmemTiledCopyKV{},
@@ -540,7 +542,7 @@ struct CollectiveMainloopFwdSm90 {
         // (assigning it to params.softcap_val) and pre-multiply softcap_val * log2(e)
         // (assigning it to params.softmax_scale_log2).
         return {args.ptr_Q, args.shape_Q, args.stride_Q, shape_Q_packed, stride_Q_packed,
-                args.ptr_K, args.shape_K, args.stride_K, args.ptr_V, args.headdim_v, args.stride_V,
+                args.ptr_K, args.shape_K, args.stride_K, args.ptr_V, args.shape_V, args.headdim_v, args.stride_V,
                 args.ptr_K_new, args.shape_K_new, args.stride_K_new, args.ptr_V_new, args.stride_V_new,
                 args.ptr_Qv, args.stride_Qv, shape_Qv_packed, stride_Qv_packed,
                 args.ptr_rotary_cos, args.shape_rotary, args.stride_rotary_cos,
@@ -647,7 +649,7 @@ struct CollectiveMainloopFwdSm90 {
         bool const is_varlen_k = Varlen && params.cu_seqlens_k;
         Tensor mQ = params.tma_load_Q.get_tma_tensor(params.shape_Q)(_, _, bidh, !is_varlen_q ? bidb : 0);
         Tensor mK_TMA = params.tma_load_K.get_tma_tensor(params.shape_K)(_, _, bidh_kv, _);
-        auto shape_V = make_shape(params.headdim_v, get<0>(params.shape_K), get<2>(params.shape_K), get<3>(params.shape_K));
+        auto shape_V = make_shape(params.headdim_v, get<0>(params.shape_V), get<2>(params.shape_V), get<3>(params.shape_V));
         Tensor mVt_TMA = params.tma_load_V.get_tma_tensor(shape_V)(_, _, bidh_kv, _);
 
         Tensor gQ = local_tile(domain_offset(make_coord(seqlen_info.offset_q, _0{}), mQ), select<0, 2>(TileShape_MNK{}), make_coord(m_block, _0{}));  // (M, K)
