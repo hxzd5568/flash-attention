@@ -676,6 +676,12 @@ struct CollectiveMainloopBwdSm90 {
         cute::tuple<int32_t, int32_t, int32_t> block_coord,
         SharedStorage& shared_storage
         ) {
+        if (thread_idx == 0) {
+            printf("-------enter mma -----\n");
+            print("params.shape_Q", params.shape_Q);
+            print("params.shape_K", params.shape_K);
+            print("params.shape_V", params.shape_V);
+        }
         static_assert(is_rmem<FrgTensordKV>::value, "dK and dV tensor must be rmem resident.");
 
         int n_block = get<0>(block_coord);
