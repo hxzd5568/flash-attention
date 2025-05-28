@@ -970,7 +970,8 @@ struct CollectiveMainloopFwdSm90 {
         int const bidh_kv = !PackGQA ? params.qhead_per_khead_divmod.divide(bidh) : bidh;
         auto [n_block_min, n_block_max] = BlockMN_t::get_n_block_min_max(
             seqlen_info, m_block, bidb, split_idx, params.num_splits,
-            params.window_size_left, params.window_size_right, params.qhead_per_khead_divmod);
+            params.window_size_left, params.window_size_right, params.attention_chunk_divmod,
+            params.qhead_per_khead_divmod);
         // It's possible to have n_block_max <= n_block_min. We don't want to load Q or change any barrier
         if constexpr (Is_causal || Is_local || Varlen || Split) {
             if (n_block_max <= n_block_min) { return false; }
